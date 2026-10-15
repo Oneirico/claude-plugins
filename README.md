@@ -65,11 +65,16 @@ Decision record: ADR-0004 in Oneirico/ProjectTemplate (`docs/arch/`).
 
 The owner applies these in the GitHub settings. Agents must not change them.
 
-- **Ruleset on `main`:** require a pull request with 1 approval and Code
-  Owner review; require the `test` and `release-gate` checks; allow merge
-  commits only; block force pushes and deletion; **no bypass actors**.
-- **Tag ruleset on `*-v*`:** only the owner may create them; block updates
-  and deletion, so a release tag never moves.
+- **Ruleset on `main`:** require a pull request (0 approvals — agents open
+  PRs under the owner's account, and GitHub does not let an author approve
+  their own PR; the owner's merge is the review); require the `test (20)`,
+  `test (22)` and `release-gate` checks; merge method **merge** only; block
+  force pushes and deletion; **no bypass actors**.
+- **Repository merge settings:** merge commits only (squash and rebase off),
+  so a pinned sha stays in `main`'s history.
+- **Tag ruleset on `*-v*`:** restrict creation, updates and deletion; bypass:
+  Repository admin only. A release tag is created once, by the owner, and
+  never moves.
 - **Visibility:** public.
 
 ## Develop
