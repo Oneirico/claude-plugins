@@ -44,7 +44,7 @@ test("file guard: the plugin cache and the plugin's own root, in any letter case
   const r = repo();
   const cached = path.join(r.home, ".claude/plugins/cache/oneirico/spar/1.0.0/scripts/spar-lib/guard.mjs");
   assert.equal(write(r, cached).status, 2);
-  if (process.platform === "darwin") assert.equal(write(r, cached.replace("/.claude/plugins/", "/.claude/PLUGINS/")).status, 2);
+  assert.equal(write(r, cached.replace("/.claude/plugins/", "/.claude/PLUGINS/")).status, 2);
   assert.equal(write(r, path.join(r.home, ".claude/plugins/marketplaces/oneirico/x.json")).status, 2);
   assert.equal(write(r, path.join(PLUGIN, "scripts/spar.mjs")).status, 2, "CLAUDE_PLUGIN_ROOT itself");
 });
@@ -62,7 +62,7 @@ test("file guard: user settings, local settings in every checkout, and shell sta
 test("file guard: dev/spar.config.json in every checkout, by case, by link", () => {
   const r = repo();
   for (const root of [r.main, r.wt, r.sibling]) assert.equal(write(r, path.join(root, "dev/spar.config.json")).status, 2, root);
-  assert.equal(write(r, "Dev/Spar.config.json").status, process.platform === "darwin" ? 2 : 0);
+  assert.equal(write(r, "Dev/Spar.config.json").status, 2, "compared lower-cased on every OS — a case-sensitive disk errs toward blocking");
   const link = path.join(r.base, "link-to-main");
   symlinkSync(r.main, link);
   assert.equal(write(r, path.join(link, "dev/spar.config.json")).status, 2);
