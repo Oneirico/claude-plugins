@@ -1,6 +1,9 @@
 {
   "name": "oneirico",
-  "owner": { "name": "Oneirico", "url": "https://github.com/Oneirico" },
+  "owner": {
+    "name": "Oneirico",
+    "url": "https://github.com/Oneirico"
+  },
   "description": "Claude Code plugins from Oneirico. Every release is owner-reviewed, carries a Security Officer record, and installs from its release tag.",
   "plugins": [
     {
@@ -10,10 +13,14 @@
         "source": "git-subdir",
         "url": "https://github.com/Oneirico/claude-plugins.git",
         "path": "plugins/spar",
-        "ref": "spar-v1.0.0"
+        "ref": "spar-v1.0.0",
+        "sha": "ed491f8b7de90af20646af90104bb53004e9be4c"
       },
       "category": "development",
-      "tags": ["design-review", "guardrails"]
+      "tags": [
+        "design-review",
+        "guardrails"
+      ]
     }
   ]
 }
