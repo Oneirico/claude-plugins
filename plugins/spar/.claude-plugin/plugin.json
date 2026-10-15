@@ -1,0 +1,10 @@
+{
+  "name": "spar",
+  "version": "1.0.0",
+  "description": "Spar a design with an outside model (OpenAI or Gemini) through one guarded, budgeted, tool-free door: brief text only, a permission prompt per send.",
+  "author": { "name": "Oneirico", "url": "https://github.com/Oneirico" },
+  "homepage": "https://github.com/Oneirico/claude-plugins/tree/main/plugins/spar",
+  "repository": "https://github.com/Oneirico/claude-plugins",
+  "license": "MIT",
+  "keywords": ["design-review", "sparring", "openai", "gemini", "guardrails"]
+}

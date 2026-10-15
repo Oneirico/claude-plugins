@@ -1,0 +1,47 @@
+name: test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm test
+
+  release-gate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # The gate that checks a PR comes from the base branch, so the PR cannot
+      # weaken it. Only the first PR, before main has one, runs its own.
+      - name: release gate (from the base branch)
+        env:
+          BASE: origin/${{ github.base_ref }}
+        run: |
+          if git cat-file -e "$BASE:scripts/release-gate.mjs" 2>/dev/null; then
+            git show "$BASE:scripts/release-gate.mjs" > "$RUNNER_TEMP/release-gate.mjs"
+          else
+            cp scripts/release-gate.mjs "$RUNNER_TEMP/release-gate.mjs"
+          fi
+          node "$RUNNER_TEMP/release-gate.mjs" "$BASE"

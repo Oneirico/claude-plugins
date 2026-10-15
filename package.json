@@ -1,0 +1,12 @@
+{
+  "name": "oneirico-claude-plugins",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test scripts/*.test.mjs plugins/*/test/*.test.mjs",
+    "release-gate": "node scripts/release-gate.mjs origin/main",
+    "validate": "claude plugin validate . && claude plugin validate plugins/spar"
+  }
+}
