@@ -1,0 +1,33 @@
+{
+  "$comment": "Design sparring (`node dev/scripts/spar.mjs`, docs/playbook/design-sparring.md). OWNER-ONLY: agents are denied edits (.claude/settings.json + guard-paths hook), because the budget, prices and guard patterns are what bound an outbound send. Prices are USD per 1M tokens; reasoning/thinking tokens bill as output. Re-check prices and bump pricesCheckedOn when you change them. sealed/deny entries are { \"label\", \"pattern\" } JavaScript regexes (case-insensitive).",
+  "provider": "openai",
+  "maxRounds": 4,
+  "monthlyBudgetUsd": 50,
+  "pricesCheckedOn": "2026-10-14",
+  "providers": {
+    "openai": {
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "maxOutputTokens": 32000,
+      "keyEnv": "OPENAI_API_KEY"
+    },
+    "gemini": {
+      "model": "gemini-3.1-pro-preview",
+      "effort": "high",
+      "maxOutputTokens": 32000,
+      "keyEnv": "GEMINI_API_KEY"
+    }
+  },
+  "prices": {
+    "gpt-6-astra": { "input": 10, "output": 50 },
+    "gpt-6.1-sol": { "input": 2, "output": 10 },
+    "gemini-3.1-pro-preview": { "input": 2, "output": 12 }
+  },
+  "guard": {
+    "maxBriefChars": 30000,
+    "maxRequestChars": 120000,
+    "codePaths": ["modules", "src", "lib", "app", "packages", "services"],
+    "sealed": [],
+    "deny": []
+  }
+}

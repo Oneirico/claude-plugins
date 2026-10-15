@@ -1,0 +1,19 @@
+{
+  "name": "oneirico",
+  "owner": { "name": "Oneirico", "url": "https://github.com/Oneirico" },
+  "description": "Claude Code plugins from Oneirico. Every release is owner-reviewed, carries a Security Officer record, and installs from its release tag.",
+  "plugins": [
+    {
+      "name": "spar",
+      "description": "Spar a design with an outside model through one guarded, budgeted, tool-free door.",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/Oneirico/claude-plugins.git",
+        "path": "plugins/spar",
+        "ref": "spar-v1.0.0"
+      },
+      "category": "development",
+      "tags": ["design-review", "guardrails"]
+    }
+  ]
+}

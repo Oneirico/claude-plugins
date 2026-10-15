@@ -1,0 +1,10 @@
+#!/usr/bin/env node
+// `spar` is on the Bash PATH so the plain form is a real command, but the
+// plugin's Bash hook rewrites every plain `spar check|send|status` into an
+// absolute call to scripts/spar.mjs before it runs. Reaching this file means
+// the hook did not run — so refuse rather than send unguarded (ADR-0004).
+process.stderr.write(
+  "spar: the plugin's Bash hook did not run, so nothing was done. Run `spar check|send|status` on its own, " +
+    "in a Claude Code session with the spar plugin enabled and its hooks allowed.\n",
+);
+process.exit(1);
