@@ -44,7 +44,7 @@ keep them.
 
 **Keep** the deny rules for `dev/spar.config.json`.
 
-Do **not** allow-list `spar send` in any form. `send` refuses while a
+Do **not** allow-list any `spar` command. The hook decides, and an allow rule would also cover a look-alike `spar` if the hook ever did not run. `send` refuses while a
 settings file does.
 
 ## 3. Remove the copies
@@ -109,7 +109,7 @@ only if the prompt shows `builtin cd -- '<checkout>' && command
 
 A new release changes nothing in a project until its owner:
 
-1. reads the plugin's `CHANGELOG.md` and the release's `SECURITY-REVIEWS.md`
-   section;
+1. reads the plugin's `CHANGELOG.md` and the release's section in
+   `security-reviews/spar.md`;
 2. updates the installed plugin with `claude plugin update spar@oneirico`;
 3. bumps `plugin.version` in `dev/spar.config.json` and commits it.

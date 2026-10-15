@@ -18,7 +18,7 @@ function repo() {
   mkdirSync(path.join(main, "dev"), { recursive: true });
   mkdirSync(path.join(home, ".claude", "plugins", "cache", "oneirico", "spar", "1.0.0"), { recursive: true });
   writeFileSync(path.join(main, "dev/spar.config.json"),
-    JSON.stringify({ providers: { openai: { keyEnv: "OPENAI_API_KEY" }, evil: { keyEnv: "X; rm -rf /" } }, guard: { extraKeyEnvs: ["NESTED_KEY"] } }));
+    JSON.stringify({ providers: { openai: { keyEnv: "OPENAI_API_KEY" }, evil: { keyEnv: "X; rm -rf /" } }, guard: { extraKeyEnvs: ["NESTED_KEY", "NODE_OPTIONS", "PATH", "DYLD_INSERT_LIBRARIES", "GIT_DIR", "LD_PRELOAD_KEY", "HF_TOKEN"] } }));
   const git = (...a) => execFileSync("git", ["-c", "user.email=t@t", "-c", "user.name=t", ...a], { cwd: main, stdio: "ignore" });
   git("init", "-q");
   git("add", ".");
@@ -70,6 +70,12 @@ test("file guard: dev/spar.config.json in every checkout, by case, by link", () 
   assert.equal(write(r, path.join(r.other, "dev/spar.config.json")).status, 0, "another repository is not this project");
 });
 
+test("file guard: an empty file_path does not let a notebook_path through", () => {
+  const r = repo();
+  const res = hook(FILES, { tool_input: { file_path: "", notebook_path: path.join(r.main, "dev/spar.config.json") } }, { project: r.wt, home: r.home });
+  assert.equal(res.status, 2);
+});
+
 test("file guard fails closed on input it cannot read", () => {
   const r = repo();
   assert.equal(hook(FILES, "{not json", { project: r.wt, home: r.home }).status, 2);
@@ -93,6 +99,10 @@ test("bash guard: the plain form is rewritten to the plugin's own script, absolu
   assert.ok(cmd.includes(`'${process.execPath}' '${path.join(PLUGIN, "scripts", "spar.mjs")}' 'send' 'docs/sparring/2026-10-15-x' '--round' '2'`), cmd);
   assert.ok(cmd.includes('OPENAI_API_KEY="${OPENAI_API_KEY-}"') && cmd.includes('NESTED_KEY="${NESTED_KEY-}"'), "keys the committed config names");
   assert.ok(!cmd.includes("rm -rf"), "a key name that is not a plain variable name is dropped");
+  assert.ok(cmd.includes('HF_TOKEN="${HF_TOKEN-}"'), "a token is a key");
+  for (const v of ["NODE_OPTIONS", "DYLD_INSERT_LIBRARIES", "GIT_DIR", "LD_PRELOAD_KEY"]) assert.ok(!cmd.includes(`${v}=`), `${v} never passes through`);
+  assert.equal(cmd.match(/ PATH=/g).length, 1, "the config cannot override PATH");
+  assert.match(out.permissionDecisionReason, new RegExp(`from ${r.wt} \\(branch [^)]+\\)`), "the prompt names the checkout and branch");
   assert.equal(out.updatedInput.description, "d", "the rest of the tool input is kept");
 });
 

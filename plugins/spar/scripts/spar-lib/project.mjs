@@ -64,6 +64,23 @@ export function pinProblem(config, running = pluginVersion()) {
   return null;
 }
 
+/** Commands a send runs as: the plain form, the hook's whole rewrite, and
+ *  each `&&` part of it (Claude Code matches compound commands part by part). */
+const REWRITE = "builtin cd -- '/p' && command /usr/bin/env -i HOME='/h' PATH=/usr/bin:/bin OPENAI_API_KEY=\"${OPENAI_API_KEY-}\" "
+  + "'/usr/local/bin/node' '/h/.claude/plugins/cache/oneirico/spar/1.0.0/scripts/spar.mjs' 'send' 'docs/sparring/x' '--round' '1'";
+const UNQUOTED = REWRITE.replace(/'/g, ""); // conservative: also as a rule author might picture it
+// Only the part that runs the script matters: allowing `cd` alone sends nothing.
+const parts = (c) => c.split(" && ").filter((p) => p.includes("spar.mjs")).flatMap((p) => [p, p.replace(/^(?:builtin|command) /, ""), p.replace(/^command \/usr\/bin\//, "")]);
+export const SEND_FORMS = ["spar send docs/sparring/x --round 1", ...[REWRITE, UNQUOTED].flatMap((c) => [c, ...parts(c)])];
+
+/** A rule's pattern as a regex: `*` matches anything, and a trailing `:*`
+ *  is the legacy prefix form. */
+function ruleRegex(inner) {
+  const body = inner.replace(/:\*$/, "*");
+  const escaped = body.split("*").map((part) => part.replace(/[.+?^${}()|[\]\\]/g, "\\$&")).join(".*");
+  return new RegExp(`^${escaped}$`, "s");
+}
+
 /** A `Bash` allow rule that would let `spar send` (or its rewrite) run
  *  without a prompt. The per-send prompt is the boundary (ADR-0003). */
 export function allowsSend(rule) {
@@ -71,15 +88,9 @@ export function allowsSend(rule) {
   const m = /^Bash(?:\((.*)\))?$/s.exec(rule.trim());
   if (!m) return false;
   const inner = (m[1] ?? "*").trim();
-  if (/^[*:\s]*$/.test(inner)) return true;
-  if (/spar\.mjs|spar-lib|\.claude\/plugins/i.test(inner)) return true;
-  const prefix = inner.replace(/(:\*|\*)\s*$/, "").trimEnd();
-  const wild = inner.length !== prefix.length;
-  // The plain form, and the first word of each part of the hook's rewrite.
-  for (const cmd of ["spar send", "builtin", "command", "/usr/bin/env", "env"]) {
-    if (prefix === cmd || (wild && cmd.startsWith(prefix)) || prefix.startsWith(`${cmd} `)) return true;
-  }
-  return false;
+  if (/spar\.mjs|spar-lib|\.claude\/plugins/i.test(inner) || /^spar\s+send\b/.test(inner)) return true;
+  const re = ruleRegex(inner || "*");
+  return SEND_FORMS.some((form) => re.test(form));
 }
 
 /** Every settings file a session here would load that the script can read. */

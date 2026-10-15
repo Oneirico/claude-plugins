@@ -26,7 +26,11 @@ import { commonDir, deny, git, readStdin } from "./lib/hook-io.mjs";
 const MENTIONS_PLUGIN = /spar\.mjs|spar-lib|\.claude[\\/]+plugins|plugins[\\/]+cache|CLAUDE_PLUGIN_(ROOT|DATA)/i;
 const INVOKES = /(^|[^\w.\/-])spar\s+(check|send|status)\b/;
 const PLAIN = /^\s*spar\s+(check|send|status)((?:[ \t]+[A-Za-z0-9._/=-]+)*)\s*$/;
-const KEY_NAME = /^[A-Z_][A-Z0-9_]*$/;
+/** A key variable passed through the cleared environment: a provider key or
+ *  token by name, never one that changes how node, git or the shell runs —
+ *  the config is any branch's HEAD, not necessarily a reviewed one. */
+const KEY_NAME = /^[A-Z][A-Z0-9_]*_(?:KEY|TOKEN)$/;
+const RUNTIME_VAR = /^(?:PATH|HOME|SHELL|ENV|ZDOTDIR|IFS|(?:NODE|NPM|LD|DYLD|GIT|BASH|ZSH|UV|PYTHON)_.*)$/;
 
 /** For git only — node is called by absolute path. System locations first,
  *  so a `git` planted in a user directory does not answer for the project. */
@@ -39,7 +43,7 @@ function keyNames(checkout) {
   let config;
   try { config = JSON.parse(git(checkout, ["show", "HEAD:dev/spar.config.json"]) ?? "{}"); } catch { return []; }
   const names = [...Object.values(config.providers ?? {}).map((p) => p?.keyEnv), ...(config.guard?.extraKeyEnvs ?? [])];
-  return [...new Set(names)].filter((n) => typeof n === "string" && KEY_NAME.test(n));
+  return [...new Set(names)].filter((n) => typeof n === "string" && KEY_NAME.test(n) && !RUNTIME_VAR.test(n));
 }
 
 /** The checkout to run in: the hook's cwd, if it belongs to the session's project. */
@@ -74,13 +78,14 @@ function decide(input) {
     deny("spar send needs its permission prompt, and this session bypasses permissions. Leave bypass mode to send.");
   }
   const checkout = verifiedCheckout(input.cwd || projectDir, projectDir);
+  const branch = git(checkout, ["rev-parse", "--abbrev-ref", "HEAD"]) ?? "?";
   const command2 = rewrite({ sub, args: m[2].trim().split(/\s+/).filter(Boolean), checkout, pluginRoot, keys: keyNames(checkout) });
   return {
     hookSpecificOutput: {
       hookEventName: "PreToolUse",
       permissionDecision: sub === "send" ? "ask" : "allow",
       permissionDecisionReason: sub === "send"
-        ? "spar send crosses to an outside model. Approve only this exact command; it runs the plugin's own script."
+        ? `spar send crosses to an outside model, from ${checkout} (branch ${branch}, its committed dev/spar.config.json). Approve only this exact command; it runs the plugin's own script.`
         : `spar ${sub} is offline and reads only briefs and the ledger.`,
       updatedInput: { ...input.tool_input, command: command2 },
     },

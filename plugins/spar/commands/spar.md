@@ -1,7 +1,7 @@
 ---
 description: Spar a design with an outside model — brief, reply, answer, until one agreed plan
 argument-hint: <topic> [one-line question]
-allowed-tools: Bash(spar check:*), Bash(spar status), Bash(mkdir:*), Read, Write, Edit, Glob, Grep
+allowed-tools: Bash(mkdir:*), Read, Write, Edit, Glob, Grep
 ---
 
 Spar a plan with an outside model. The whole practice — when to spar and when

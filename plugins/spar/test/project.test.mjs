@@ -118,7 +118,7 @@ test("the version pin: send refuses a mismatch either way; status and check repo
 
 test("allowsSend: rules that would skip the send prompt, and rules that would not", () => {
   for (const r of ["Bash", "Bash(*)", "Bash(:*)", "Bash(spar:*)", "Bash(spar *)", "Bash(spar send:*)", "Bash(spar send docs/sparring/x --round 2)",
-    "Bash(sp:*)", "Bash(command:*)", "Bash(builtin:*)", "Bash(/usr/bin/env:*)", "Bash(env:*)", "Bash(node /x/.claude/plugins/cache/o/spar/1/scripts/spar.mjs:*)"]) {
+    "Bash(sp:*)", "Bash(*spar*)", "Bash(* send *)", "Bash(*/node *)", "Bash(*spar.mjs*)", "Bash(command:*)", "Bash(builtin:*)", "Bash(/usr/bin/env:*)", "Bash(env:*)", "Bash(node /x/.claude/plugins/cache/o/spar/1/scripts/spar.mjs:*)"]) {
     assert.ok(allowsSend(r), r);
   }
   for (const r of ["Bash(spar check:*)", "Bash(spar status)", "Bash(npm run lint)", "Read(./x)", "Bash(git status)", "Bash(cd:*)"]) {

@@ -39,16 +39,23 @@ Changing a plugin is releasing it. The plugins guard what leaves a project,
 so releases are gated:
 
 1. A PR changes `plugins/<name>/`. Agents open these as drafts only.
-2. The same PR bumps the version in `plugins/<name>/.claude-plugin/plugin.json`,
-   adds a `## <version>` section to its `CHANGELOG.md`, and points the
-   marketplace entry at tag `<name>-v<version>`.
+2. The same PR bumps the version in `plugins/<name>/.claude-plugin/plugin.json`
+   and adds a `## <version>` section to its `CHANGELOG.md`, in one commit.
+   A second commit pins the marketplace entry to that commit: its full `sha`
+   and the tag name `<name>-v<version>`.
 3. A Security Officer reviews the release. The **owner** records the review
-   in `plugins/<name>/SECURITY-REVIEWS.md` under `## <version>`, ending with
-   `Verdict: pass`.
-4. CI runs the tests and `scripts/release-gate.mjs`. The gate refuses a
-   plugin change with no version bump, changelog, review record or tag ref.
-5. The owner merges, then tags the merge commit `<name>-v<version>`. Installs
-   come from that tag, never from `main`.
+   in `security-reviews/<name>.md` under `## <version>`, ending with
+   `Verdict: pass`. The record lives outside the plugin, so adding it does
+   not change the pinned tree.
+4. CI runs the tests and the release gate, taken from the base branch so a PR
+   cannot weaken the gate that checks it. The gate refuses:
+   - a plugin change with no version bump or changelog;
+   - a marketplace entry that is not this repo, not a full sha already in
+     the history, or whose pinned tree differs from `HEAD`'s;
+   - a release with no `Verdict: pass` record.
+5. The owner merges **with a merge commit** (no squash or rebase, so the
+   pinned sha stays on `main`), then tags that sha `<name>-v<version>`.
+   Installs come from the pinned sha, never from `main`.
 6. Each project gets the release only when its owner bumps the pin in that
    project's config, after reading the changelog and the review record.
 
@@ -59,8 +66,8 @@ Decision record: ADR-0004 in Oneirico/ProjectTemplate (`docs/arch/`).
 The owner applies these in the GitHub settings. Agents must not change them.
 
 - **Ruleset on `main`:** require a pull request with 1 approval and Code
-  Owner review; require the `test` and `release-gate` checks; block force
-  pushes and deletion; **no bypass actors**.
+  Owner review; require the `test` and `release-gate` checks; allow merge
+  commits only; block force pushes and deletion; **no bypass actors**.
 - **Tag ruleset on `*-v*`:** only the owner may create them; block updates
   and deletion, so a release tag never moves.
 - **Visibility:** public.

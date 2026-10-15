@@ -1,4 +1,4 @@
-# Security Officer reviews
+# Security Officer reviews — spar
 
 One section per released version, **written by the owner** (agents are
 denied edits to this file). The release gate refuses a version without a

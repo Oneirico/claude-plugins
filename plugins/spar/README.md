@@ -18,8 +18,9 @@ script:
   personal and host data, sealed patterns, and oversize briefs. It is a
   best-effort filter, not a guarantee.
 - **The permission prompt is the boundary.** Every `spar send` asks. Send
-  refuses while any settings file would skip that prompt, and it is denied
-  in bypass-permissions mode.
+  refuses while any settings file would skip that prompt, and the hook denies
+  the plain form in bypass-permissions mode. Bypass mode runs arbitrary code
+  unprompted, so it is not a supported way to send at all.
 - **Budget.** A monthly cap, checked before every send against a ledger in
   the project's main checkout.
 - **Retention.** Nothing is sent to a provider until the owner records that
@@ -68,5 +69,5 @@ absolute command.**
 ## Releases
 
 See the [marketplace README](../../README.md#how-releases-work):
-[CHANGELOG](CHANGELOG.md) · [Security Officer reviews](SECURITY-REVIEWS.md)
+[CHANGELOG](CHANGELOG.md) · [Security Officer reviews](../../security-reviews/spar.md)
 · [Migrating from the template's copies](MIGRATING.md).

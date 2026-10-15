@@ -39,12 +39,15 @@ async function main() {
   const raw = await readStdin();
   const input = JSON.parse(raw);
   const t = input?.tool_input ?? {};
-  const file = t.file_path ?? t.filePath ?? t.notebook_path ?? "";
-  if (typeof file !== "string") throw new Error("file path is not a string");
-  if (!file) return;
+  // Every path field present is checked: an empty `file_path` must not let a
+  // `notebook_path` through.
+  const files = ["file_path", "filePath", "notebook_path"].filter((k) => t[k] !== undefined).map((k) => t[k]);
+  if (files.some((f) => typeof f !== "string")) throw new Error("file path is not a string");
   const projectDir = process.env.CLAUDE_PROJECT_DIR || input.cwd || process.cwd();
-  const why = forbidden(file, { projectDir, pluginRoot: process.env.CLAUDE_PLUGIN_ROOT });
-  if (why) deny(`blocked write to ${file}: ${why} The owner makes this change. See ADR-0004.`);
+  for (const file of files.filter(Boolean)) {
+    const why = forbidden(file, { projectDir, pluginRoot: process.env.CLAUDE_PLUGIN_ROOT });
+    if (why) deny(`blocked write to ${file}: ${why} The owner makes this change. See ADR-0004.`);
+  }
 }
 
 main().then(() => process.exit(0), (err) => deny(`file guard failed (${err.message}), so the write is denied. Fails closed by design.`));

@@ -18,8 +18,8 @@
       "Bash(git push --force:*)",
       "Edit(./.github/**)",
       "Write(./.github/**)",
-      "Edit(./plugins/*/SECURITY-REVIEWS.md)",
-      "Write(./plugins/*/SECURITY-REVIEWS.md)"
+      "Edit(./security-reviews/**)",
+      "Write(./security-reviews/**)"
     ]
   }
 }
