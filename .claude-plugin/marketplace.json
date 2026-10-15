@@ -14,7 +14,7 @@
         "url": "https://github.com/Oneirico/claude-plugins.git",
         "path": "plugins/spar",
         "ref": "spar-v1.0.0",
-        "sha": "ed491f8b7de90af20646af90104bb53004e9be4c"
+        "sha": "432db78565f4bddc42245705eababe54c234584e"
       },
       "category": "development",
       "tags": [
